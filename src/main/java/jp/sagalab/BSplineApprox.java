@@ -15,7 +15,7 @@ public class BSplineApprox {
 	private Double basisFunction(Integer _i, Integer _k, Double _t){
 		{
 			int knotsSize = m_knots.size();
-			int controlPointsSize = m_knots.size() - m_degree - 1;
+			int controlPointsSize = m_knots.size() - m_degree + 1;
 			int n = m_degree;
 
 			if (_i == 0) {
@@ -55,8 +55,8 @@ public class BSplineApprox {
 
 		List<Double> result = new ArrayList<>();
 
-		for (int i=0; i < knotSize; i++){
-			double w = (i - m_degree + 1) / (double) knotIntervalNum; // w謎
+		for (int i = 0; i < knotSize; ++i){
+			double w = (i - m_degree + 1) / (double) knotIntervalNum;
 			result.add((1.0 - w) * timeFirst + w * timeLast);
 		}
 
@@ -79,11 +79,11 @@ public class BSplineApprox {
 
 	public List<Point> getControlPoints(){
 		int size = m_points.size();
-		int controlPointsSize = m_knots.size() - m_degree - 1;
+		int controlPointsSize = m_knots.size() - m_degree + 1;
 		double[][] passXMatrixRaw = new double[size][1];
 		double[][] passYMatrixRaw = new double[size][1];
 
-		for (int i=0; i < size; i++){
+		for (int i=0; i < size; ++i){
 			passXMatrixRaw[i][0] = m_points.get(i).getX();
 			passYMatrixRaw[i][0] = m_points.get(i).getY();
 		}
@@ -93,8 +93,8 @@ public class BSplineApprox {
 
 		double[][] basisMatrixRaw = new double[size][controlPointsSize];
 
-		for(int i=0; i < size; i++){
-			for(int j=0; j < controlPointsSize; j++){
+		for(int i=0; i < size; ++i){
+			for(int j=0; j < controlPointsSize; ++j){
 				double basis = basisFunction(j,m_degree, m_normalizedTimes.get(i));
 				basisMatrixRaw[i][j] = basis;
 			}
@@ -113,7 +113,7 @@ public class BSplineApprox {
 
 		List<Point> result = new ArrayList<>();
 
-		for(int i=0; i < controlPointsSize; i++){
+		for(int i=0; i < controlPointsSize; ++i){
 			double x = resultXMatrix.getEntry(i, 0);
 			double y = resultYMatrix.getEntry(i, 0);
 
@@ -129,7 +129,7 @@ public class BSplineApprox {
 
 	public BSplineApprox(List<Point> _points, int _degree){
 		m_degree = _degree;
-		m_points = _points;
+		m_points = new ArrayList<>(_points);
 		m_normalizedTimes = normalizedTimes();
 		m_knots = generateKnots();
 	}

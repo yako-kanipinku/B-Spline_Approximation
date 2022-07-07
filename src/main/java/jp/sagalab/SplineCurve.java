@@ -20,8 +20,13 @@ public class SplineCurve {
 	 * @throws IllegalArgumentException 制御点数が次数以下であった場合
 	 */
 	public static SplineCurve create(List<Point> _controlPoints, List<Double> _knots){
-		if(_controlPoints.size()<=(_knots.size()-_controlPoints.size()-1))
+		final int cpsSize = _controlPoints.size();
+		final int knotsSize = _knots.size();
+
+		if (!(cpsSize <= knotsSize && knotsSize <= (2 * cpsSize - 2))) {
 			throw new IllegalArgumentException("controlPoints must be more than degree");
+		}
+
 		return new SplineCurve(_controlPoints, _knots);
 	}
 
@@ -48,17 +53,28 @@ public class SplineCurve {
 	 * @return 次数
 	 */
 	public Integer getDegree(){
-		return m_knots.size()-m_controlPoints.size()-1;
+		return m_knots.size() - m_controlPoints.size() + 1;
 	}
 
 	/**
 	 * 定義域を取得する.
 	 * @return 定義域
 	 */
-	public Interval getDomain(){
-		Double begin = m_knots.get(getDegree());
-		Double end = m_knots.get(m_controlPoints.size());
-		return Interval.create(begin, end);
+	public Interval getDomain() {
+		final Integer k = getDegree();
+		final Integer l = numberOfSections();
+		final Integer startIndex = k - 1;
+		final Integer endIndex = k + l - 1;
+
+		return Interval.create(m_knots.get(startIndex), m_knots.get(endIndex));
+	}
+
+
+	public Integer numberOfSections() {
+		Integer cpsSize = m_controlPoints.size();
+		Integer knotsSize = m_knots.size();
+
+		return 2 * cpsSize - knotsSize - 1;
 	}
 
 	/**
@@ -69,11 +85,18 @@ public class SplineCurve {
 	 * @throws IllegalArgumentException パラメーターtが定義域外であった場合
 	 */
 	public Point evaluate(Double _t){
-		Double x = 0.0;
-		Double y = 0.0;
+		if (!getDomain().contains(_t)) {
+			throw new IllegalArgumentException("_t out of domain.");
+		}
+
+		double x = 0.0;
+		double y = 0.0;
+		final Integer degree = getDegree();
+
 		for(int i=0; i < m_controlPoints.size(); i++) {
-			x += m_controlPoints.get(i).getX() * bSplineBasisFunction(i, getDegree(), _t);
-			y += m_controlPoints.get(i).getY() * bSplineBasisFunction(i, getDegree(), _t);
+			final Double basis = bSplineBasisFunction(i, degree, _t);
+			x += m_controlPoints.get(i).getX() * basis;
+			y += m_controlPoints.get(i).getY() * basis;
 		}
 		return Point.create(x, y);
 	}
@@ -99,22 +122,25 @@ public class SplineCurve {
 	 * @return B-スプライン基底関数の値
 	 */
 	private Double bSplineBasisFunction(Integer _i, Integer _k, Double _t){
+		int controlPointsSize = m_controlPoints.size();
+
 		{
 			int knotsSize = m_knots.size();
-			int controlPointsSize = m_knots.size() - getDegree() - 1;
-			int n = getDegree();
+			int n = knotsSize - controlPointsSize + 1;
 
 			if (_i == 0) {
 				double coeff = (m_knots.get(_i + _k) - _t) / (m_knots.get(_i + _k) - m_knots.get(_i));
 				return coeff * bSplineBasisFunction(_i + 1, _k - 1, _t);
 			}
 
+			// 右端では u(knotsSize) は考慮しない（p.48 図3.14、p.50 図3.16、図3.17）
 			if (_i + _k == knotsSize) {
 				double coeff = (_t - m_knots.get(_i - 1)) / (m_knots.get(_i + _k - 1) - m_knots.get(_i - 1));
 				return coeff * bSplineBasisFunction(_i, _k - 1, _t);
 			}
 
 			if (_k == 0) {
+				// 節点列の終端がn重節点になっているか
 				boolean isN_Overlapped = m_knots.get(m_knots.size() - 1).equals(m_knots.get(m_knots.size() - n));
 
 				if (_i == controlPointsSize - 1 && m_knots.get(knotsSize - 1).equals(_t) && isN_Overlapped) {

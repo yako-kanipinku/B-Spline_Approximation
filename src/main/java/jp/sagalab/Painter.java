@@ -54,7 +54,7 @@ public class Painter extends JFrame {
 		setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
 		addWindowListener(new WindowClosing());
 		setState(JFrame.ICONIFIED);
-		setIconImage(new ImageIcon("icon2.jpg").getImage());
+		//setIconImage(new ImageIcon("icon2.jpg").getImage());
 		canvas.setSize(800, 600);
 		canvas.setBackground(Color.WHITE);
 		setTitle("B-Spline Approximation");
@@ -101,7 +101,7 @@ public class Painter extends JFrame {
 						double interval = 0.01;
 						double loopCount = (domain.getEnd() - domain.getBegin()) / interval;
 
-						for(int i=0; i <= loopCount; i++){
+						for(int i = 1; i <= loopCount; i++){
 							double t = domain.getBegin() + interval * i;
 
 							Point p = sc.evaluate(t);
@@ -112,8 +112,6 @@ public class Painter extends JFrame {
 						}
 
 						m_points.clear();
-
-						System.out.println(controlPoints);
 					}
 
 				}
