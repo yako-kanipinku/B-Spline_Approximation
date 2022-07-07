@@ -71,7 +71,7 @@ public class SplineCurve {
 	public Point evaluate(Double _t){
 		Double x = 0.0;
 		Double y = 0.0;
-		for(int i=0; i<m_controlPoints.size(); i++) {
+		for(int i=0; i < m_controlPoints.size(); i++) {
 			x += m_controlPoints.get(i).getX() * bSplineBasisFunction(i, getDegree(), _t);
 			y += m_controlPoints.get(i).getY() * bSplineBasisFunction(i, getDegree(), _t);
 		}
@@ -99,28 +99,37 @@ public class SplineCurve {
 	 * @return B-スプライン基底関数の値
 	 */
 	private Double bSplineBasisFunction(Integer _i, Integer _k, Double _t){
-		if(_k==0){
-			if (_i == 4) {
-				if (m_knots.get(_i) <= _t && _t <= m_knots.get(_i + 1)) {
+		{
+			int knotsSize = m_knots.size();
+			int controlPointsSize = m_knots.size() - getDegree() - 1;
+			int n = getDegree();
+
+			if (_i == 0) {
+				double coeff = (m_knots.get(_i + _k) - _t) / (m_knots.get(_i + _k) - m_knots.get(_i));
+				return coeff * bSplineBasisFunction(_i + 1, _k - 1, _t);
+			}
+
+			if (_i + _k == knotsSize) {
+				double coeff = (_t - m_knots.get(_i - 1)) / (m_knots.get(_i + _k - 1) - m_knots.get(_i - 1));
+				return coeff * bSplineBasisFunction(_i, _k - 1, _t);
+			}
+
+			if (_k == 0) {
+				boolean isN_Overlapped = m_knots.get(m_knots.size() - 1).equals(m_knots.get(m_knots.size() - n));
+
+				if (_i == controlPointsSize - 1 && m_knots.get(knotsSize - 1).equals(_t) && isN_Overlapped) {
 					return 1.0;
 				}
+
+				return (m_knots.get(_i - 1) <= _t && _t < m_knots.get(_i)) ? 1.0 : 0.0;
 			}
-			if (m_knots.get(_i) <= _t && _t < m_knots.get(_i + 1)) {
-				return 1.0;
-			}
-			return 0.0;
 		}
-		Double denom1 = m_knots.get(_i+_k)-m_knots.get(_i);
-		Double denom2 = m_knots.get(_i+_k+1)-m_knots.get(_i+1);
-		Double a = 0.0;
-		Double b = 0.0;
-		if(denom1 != 0) {
-			a = ((_t - m_knots.get(_i)) / denom1) * bSplineBasisFunction(_i, _k - 1, _t);
-		}
-		if (denom2 != 0) {
-			b = ((m_knots.get(_i + _k + 1) - _t) / denom2) * bSplineBasisFunction(_i + 1, _k - 1, _t);
-		}
-		return a+b;
+		Double denom1 = m_knots.get(_i + _k - 1) - m_knots.get(_i - 1);
+		Double denom2 = m_knots.get(_i + _k) - m_knots.get(_i);
+		double coeff1 = (denom1 != 0.0) ? (_t - m_knots.get(_i - 1)) / denom1 : 0.0;
+		double coeff2 = (denom2 != 0.0) ? (m_knots.get(_i + _k) - _t) / denom2 : 0.0;
+
+		return coeff1* bSplineBasisFunction(_i, _k - 1, _t) + coeff2 * bSplineBasisFunction(_i + 1, _k - 1, _t);
 
 	}
 

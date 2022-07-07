@@ -20,14 +20,15 @@ public class Painter extends JFrame {
 
 	class WindowClosing extends WindowAdapter{
 		public void windowClosing(WindowEvent e){
-			int ans = JOptionPane.showConfirmDialog(Painter.this,  "本当に閉じちゃうの?泣");
+			int ans = JOptionPane.showConfirmDialog(Painter.this,  "本当に閉じますか ?");
 			if(ans == JOptionPane.YES_OPTION)
 				System.exit(0);
 		}
 	}
 
-	public void drawPoint(Point _p) {
+	public void drawPoint(Point _p, Color _color) {
 		Graphics g = canvas.getGraphics();
+		g.setColor(_color);
 		int diameter = 8;
 		g.drawOval((int)_p.getX()-diameter/2, (int)_p.getY()-diameter/2, diameter, diameter);
 	}
@@ -68,13 +69,12 @@ public class Painter extends JFrame {
 					public void mousePressed(MouseEvent e) {
 
 						m_startTime = getTime();
-						System.out.println(m_startTime);
 
 						m_points.clear();
 						cleanCanvas();
 						Point point = Point.create((double) e.getX(), (double) e.getY(), 0.0);
 						m_points.add( point );
-						drawPoint( point );
+						drawPoint(point, Color.BLACK);
 						m_previousPoint = point;
 					}
 
@@ -83,11 +83,16 @@ public class Painter extends JFrame {
 
 						Point point = Point.create((double) e.getX(), (double) e.getY(),(double)(getTime()-m_startTime)/1000);
 						m_points.add( point );
-						drawPoint( point );
+						drawPoint(point, Color.BLACK);
 						drawLine(m_previousPoint, point, Color.BLACK);
 
 						BSplineApprox sci = BSplineApprox.create(m_points, 3);
 						List<Point> controlPoints = new ArrayList<>(sci.getControlPoints());
+
+						for(int i=0; i < controlPoints.size(); i++){
+							Point y = Point.create(controlPoints.get(i).getX(), controlPoints.get(i).getY());
+							drawPoint(y, Color.BLUE);
+						}
 
 						SplineCurve sc = SplineCurve.create(controlPoints, sci.getKnots());
 
@@ -107,6 +112,8 @@ public class Painter extends JFrame {
 						}
 
 						m_points.clear();
+
+						System.out.println(controlPoints);
 					}
 
 				}
