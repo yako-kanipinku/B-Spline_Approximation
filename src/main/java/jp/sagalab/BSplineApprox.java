@@ -107,6 +107,8 @@ public class BSplineApprox {
 		RealMatrix N_Tp_x = N_T.copy().multiply(passXMatrix);
 		RealMatrix N_Tp_y = N_T.copy().multiply(passYMatrix);
 
+		System.out.println(N);
+
 		LUDecomposition LU_Decomposition = new LUDecomposition(N_TN);
 		RealMatrix resultXMatrix = LU_Decomposition.getSolver().solve(N_Tp_x);
 		RealMatrix resultYMatrix = LU_Decomposition.getSolver().solve(N_Tp_y);
