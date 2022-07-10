@@ -73,7 +73,7 @@ public class Painter extends JFrame {
 						m_points.clear();
 						cleanCanvas();
 						Point point = Point.create((double) e.getX(), (double) e.getY(), 0.0);
-						m_points.add( point );
+						m_points.add(point);
 						drawPoint(point, Color.BLACK);
 						m_previousPoint = point;
 					}
