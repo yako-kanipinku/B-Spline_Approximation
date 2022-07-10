@@ -51,7 +51,9 @@ public class BSplineApprox {
 		double timeFirst = m_normalizedTimes.get(0);
 		double timeLast = m_normalizedTimes.get(m_normalizedTimes.size() - 1);
 		int knotIntervalNum = (int)Math.ceil((timeLast-timeFirst)/TIME_INTERVAL); // 区間数の決め方.
-		int knotSize = knotIntervalNum + 2 * m_degree -1;
+		int knotSize = knotIntervalNum + 2 * m_degree - 1;
+
+		System.out.println("区間数: "+ knotIntervalNum);
 
 		List<Double> result = new ArrayList<>();
 
@@ -60,6 +62,7 @@ public class BSplineApprox {
 			result.add((1.0 - w) * timeFirst + w * timeLast);
 		}
 
+		System.out.println("接点: "+result);
 		return result;
 	}
 
@@ -74,6 +77,7 @@ public class BSplineApprox {
 			result.add(p.getTime()*ratio);
 		}
 
+		System.out.println("second: "+result);
 		return result;
 	}
 
@@ -104,10 +108,12 @@ public class BSplineApprox {
 		RealMatrix N_T = N.copy().transpose();
 		RealMatrix N_TN = N_T.copy().multiply(N);
 
+		showMatrix(N, "N");
+		showMatrix(N_T, "N_T");
+		showMatrix(N_TN, "N_TN");
+
 		RealMatrix N_Tp_x = N_T.copy().multiply(passXMatrix);
 		RealMatrix N_Tp_y = N_T.copy().multiply(passYMatrix);
-
-		System.out.println(N);
 
 		LUDecomposition LU_Decomposition = new LUDecomposition(N_TN);
 		RealMatrix resultXMatrix = LU_Decomposition.getSolver().solve(N_Tp_x);
@@ -125,6 +131,21 @@ public class BSplineApprox {
 		return result;
 	}
 
+	public void showMatrix(RealMatrix m, String name) {
+		System.out.println("------------------ " + name);
+		for (int i = 0; i < m.getRowDimension(); i++) {
+			System.out.print("{");
+			for (int j = 0; j < m.getColumnDimension(); j++) {
+				System.out.printf("%.2f",m.getEntry(i, j));
+				if (j < m.getColumnDimension()-1) {
+					System.out.print(", ");
+				}
+			}
+			System.out.println("}");
+		}
+		System.out.println();
+	}
+
 	public List<Double> getKnots(){
 		return new ArrayList<>(m_knots);
 	}
@@ -140,6 +161,6 @@ public class BSplineApprox {
 	private final List<Point> m_points;
 	private final List<Double> m_normalizedTimes;
 	private final List<Double> m_knots;
-	private static final double TIME_INTERVAL = 0.05;
+	private static final double TIME_INTERVAL = 0.1; // 最初は0.05  間隔を広くすることで書き始めを区間内に入れる.
 
 }
