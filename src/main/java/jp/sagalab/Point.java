@@ -22,6 +22,11 @@ public class Point {
 		return m_time;
 	}
 
+	public double getDistance(Point _p){
+		double x = _p.getX()-m_x;
+		double y = _p.getY()-m_y;
+		return Math.sqrt(x*x+y*y);
+	}
 	private Point(Double _x, Double _y, Double _time){
 		m_x = _x;
 		m_y = _y;
@@ -30,6 +35,5 @@ public class Point {
 
 	private final Double m_x;
 	private final Double m_y;
-
 	private final Double m_time;
 }

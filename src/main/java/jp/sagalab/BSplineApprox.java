@@ -51,7 +51,8 @@ public class BSplineApprox {
 		double timeFirst = m_normalizedTimes.get(0);
 		double timeLast = m_normalizedTimes.get(m_normalizedTimes.size() - 1);
 		int knotIntervalNum = (int)Math.ceil((timeLast-timeFirst)/TIME_INTERVAL); // 区間数の決め方.
-		int knotSize = knotIntervalNum + 2 * m_degree - 1;
+		// Math.ceil(); は引数として与えた数以上の最小の整数を返す.
+		int knotSize = knotIntervalNum + 2 * m_degree - 1; // 節点の数.
 
 		System.out.println("区間数: "+ knotIntervalNum);
 
@@ -68,16 +69,19 @@ public class BSplineApprox {
 
 	public List<Double> normalizedTimes(){
 		double timeLast = m_points.get(m_points.size()-1).getTime();
+		// ex.) timeLast = 3.12
 		double lastFloored = (Math.floor(timeLast*10))/10;
 		// ex.) 3.12*10 = 31.2 floor→ 31.0 *10 = 3.1
 		double ratio = lastFloored / timeLast;
+		// ex.) 3.1/3.12 = 0.9935...
 		List<Double> result = new ArrayList<>();
 
 		for (Point p : m_points){
-			result.add(p.getTime()*ratio);
+			result.add(p.getTime()*ratio); // 節点区間の時間間隔を狭める.
+
+			System.out.println("second: "+p.getTime()*ratio);
 		}
 
-		System.out.println("second: "+result);
 		return result;
 	}
 
@@ -95,6 +99,9 @@ public class BSplineApprox {
 		RealMatrix passXMatrix = MatrixUtils.createRealMatrix(passXMatrixRaw);
 		RealMatrix passYMatrix = MatrixUtils.createRealMatrix(passYMatrixRaw);
 
+		//showMatrix(passXMatrix, "passXMatrix");
+		//showMatrix(passYMatrix, "passYMatrix");
+
 		double[][] basisMatrixRaw = new double[size][controlPointsSize];
 
 		for(int i=0; i < size; ++i){
@@ -108,12 +115,15 @@ public class BSplineApprox {
 		RealMatrix N_T = N.copy().transpose();
 		RealMatrix N_TN = N_T.copy().multiply(N);
 
-		showMatrix(N, "N");
-		showMatrix(N_T, "N_T");
-		showMatrix(N_TN, "N_TN");
+		//showMatrix(N, "N");
+		//showMatrix(N_T, "N_T");
+		//showMatrix(N_TN, "N_TN");
 
 		RealMatrix N_Tp_x = N_T.copy().multiply(passXMatrix);
 		RealMatrix N_Tp_y = N_T.copy().multiply(passYMatrix);
+
+		//showMatrix(N_Tp_x, "N_Tp_x");
+		//showMatrix(N_Tp_y, "N_Tp_y");
 
 		LUDecomposition LU_Decomposition = new LUDecomposition(N_TN);
 		RealMatrix resultXMatrix = LU_Decomposition.getSolver().solve(N_Tp_x);
@@ -161,6 +171,6 @@ public class BSplineApprox {
 	private final List<Point> m_points;
 	private final List<Double> m_normalizedTimes;
 	private final List<Double> m_knots;
-	private static final double TIME_INTERVAL = 0.1; // 最初は0.05  間隔を広くすることで書き始めを区間内に入れる.
+	private static final double TIME_INTERVAL = 0.05; // 最初は0.05. 間隔を広くすることで書き始めを区間内に入れる.
 
 }

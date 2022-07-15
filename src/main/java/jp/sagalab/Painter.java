@@ -73,7 +73,8 @@ public class Painter extends JFrame {
 						m_points.clear();
 						cleanCanvas();
 						Point point = Point.create((double) e.getX(), (double) e.getY(), 0.0);
-						m_points.add(point);
+						// 最初の点は追加しない.
+						//m_points.add( point );
 						drawPoint(point, Color.BLACK);
 						m_previousPoint = point;
 					}
@@ -82,7 +83,8 @@ public class Painter extends JFrame {
 					public void mouseReleased(MouseEvent e){
 
 						Point point = Point.create((double) e.getX(), (double) e.getY(),(double)(getTime()-m_startTime)/1000);
-						m_points.add( point );
+						// 最後の点も追加しない.
+						//m_points.add( point );
 						drawPoint(point, Color.BLACK);
 						drawLine(m_previousPoint, point, Color.BLACK);
 
@@ -124,6 +126,17 @@ public class Painter extends JFrame {
 					@Override
 					public void mouseDragged(MouseEvent e){
 						Point point = Point.create((double)e.getX(), (double)e.getY(), (double)(getTime()-m_startTime)/1000);
+
+						// マウスドラッグが止まった場合の点を打つ処理.
+						double timeDelta = point.getTime() - m_previousPoint.getTime();
+						if (timeDelta > 0.1){
+							double time = 0.01;
+							for (double i=m_previousPoint.getTime(); i < point.getTime(); i+=time){
+								Point clone = Point.create(m_previousPoint.getX(), m_previousPoint.getY(), i);
+								m_points.add(clone);
+							}
+						}
+
 						m_points.add( point );
 						drawLine(m_previousPoint, point, Color.BLACK);
 						m_previousPoint = point;
