@@ -18,16 +18,19 @@ public class Point {
 		return m_y;
 	}
 
+	/*
+	public double getDistance(Point _p){
+		double x = _p.getX() - m_x;
+		double y = _p.getY() - m_y;
+		return Math.sqrt(x*x + y*y);
+	}
+	 */
+
 	public double getTime(){
 		return m_time;
 	}
 
-	public double getDistance(Point _p){
-		double x = _p.getX()-m_x;
-		double y = _p.getY()-m_y;
-		return Math.sqrt(x*x+y*y);
-	}
-	private Point(Double _x, Double _y, Double _time){
+	private Point(Double _x, Double _y, Double _time) {
 		m_x = _x;
 		m_y = _y;
 		m_time = _time;
