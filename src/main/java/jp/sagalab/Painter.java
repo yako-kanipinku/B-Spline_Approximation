@@ -137,6 +137,10 @@ public class Painter extends JFrame {
 							}
 						}
 
+						//
+						double test = m_points.get(m_points.size()-1).getDistance(m_points.get(m_points.size()-2));
+						System.out.println("distance: "+ test);
+
 						m_points.add( point );
 						drawLine(m_previousPoint, point, Color.BLACK);
 						m_previousPoint = point;
