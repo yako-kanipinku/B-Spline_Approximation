@@ -49,13 +49,38 @@ public class Painter extends JFrame {
 		return time;
 	}
 
+	/*
+	public double getDistance(Point _p){
+		double x = _p.getX() - m_x;
+		double y = _p.getY() - m_y;
+
+		// 三平方の定理
+		double nowDistance = Math.sqrt(x*x + y*y);
+
+		System.out.println("nowDistance  : "+nowDistance);
+
+		// 最初の要素を0.0とする.
+		m_distance.add(0,0.0);
+
+		// 打った点の距離を次々足していく.
+		double totalDistance = nowDistance + m_distance.get(m_distance.size()-1);
+		// 要素として追加.
+		m_distance.add(totalDistance);
+
+		System.out.println("totalDistance: "+totalDistance);
+		// その時点での最後の点の距離を返す.
+		return m_distance.get(m_distance.size()-1);
+	}
+
+	 */
+
 	private Painter(){
 		setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
 		addWindowListener(new WindowClosing());
 		setState(JFrame.ICONIFIED);
-		//setIconImage(new ImageIcon("icon2.jpg").getImage());
-		canvas.setSize(800, 600);
+		setIconImage(new ImageIcon("icon2.jpg").getImage());
+		canvas.setSize(1000, 800);
 		canvas.setBackground(Color.WHITE);
 		setTitle("B-Spline Approximation");
 		add(canvas);
@@ -113,9 +138,8 @@ public class Painter extends JFrame {
 							tmp = p;
 						}
 
-						m_points.clear();
 					}
-
+					
 				}
 
 		);
@@ -153,6 +177,7 @@ public class Painter extends JFrame {
 	}
 
 
+	private final List<Double> m_distance = new ArrayList<>();
 	private long m_startTime = 0;
 	private Point m_previousPoint;
 	private List<Point> m_points = new ArrayList<>();
