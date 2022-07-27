@@ -139,7 +139,8 @@ public class Painter extends JFrame {
 						}
 
 					}
-					
+
+					Output.writeToCSV(m_points);
 				}
 
 		);
