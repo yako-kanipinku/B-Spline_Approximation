@@ -3,6 +3,7 @@ package jp.sagalab;
 import javax.swing.*;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.Canvas;
@@ -49,30 +50,23 @@ public class Painter extends JFrame {
 		return time;
 	}
 
-	/*
-	public double getDistance(Point _p){
-		double x = _p.getX() - m_x;
-		double y = _p.getY() - m_y;
+	/**
+	 * _previousPointと_currentPointの距離を求める関数.
+	 * @param _previousPoint 過去の点.
+	 * @param _currentPoint 現在の点.
+	 * @return 距離.
+	 */
+	public static double getDistance(Point _previousPoint, Point _currentPoint){
+
+		double x = _currentPoint.getX() - _previousPoint.getX();
+		double y = _currentPoint.getY() - _previousPoint.getY();
 
 		// 三平方の定理
 		double nowDistance = Math.sqrt(x*x + y*y);
+		System.out.println("nowDistance: "+nowDistance);
 
-		System.out.println("nowDistance  : "+nowDistance);
-
-		// 最初の要素を0.0とする.
-		m_distance.add(0,0.0);
-
-		// 打った点の距離を次々足していく.
-		double totalDistance = nowDistance + m_distance.get(m_distance.size()-1);
-		// 要素として追加.
-		m_distance.add(totalDistance);
-
-		System.out.println("totalDistance: "+totalDistance);
-		// その時点での最後の点の距離を返す.
-		return m_distance.get(m_distance.size()-1);
+		return nowDistance;
 	}
-
-	 */
 
 	private Painter(){
 		setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
@@ -113,6 +107,10 @@ public class Painter extends JFrame {
 						drawPoint(point, Color.BLACK);
 						drawLine(m_previousPoint, point, Color.BLACK);
 
+//						for (Point m_point : m_points) {
+//							System.out.println(m_point);
+//						}
+
 						BSplineApprox sci = BSplineApprox.create(m_points, 3);
 						List<Point> controlPoints = new ArrayList<>(sci.getControlPoints());
 
@@ -140,7 +138,7 @@ public class Painter extends JFrame {
 
 					}
 
-					Output.writeToCSV(m_points);
+					// Output.writeToCSV(m_points);
 				}
 
 		);
@@ -150,27 +148,30 @@ public class Painter extends JFrame {
 
 					@Override
 					public void mouseDragged(MouseEvent e){
-						Point point = Point.create((double)e.getX(), (double)e.getY(), (double)(getTime()-m_startTime)/1000);
+						Point point = Point.create((double)e.getX(), (double)e.getY(), 0.0);
+
+						double distance = getDistance(m_previousPoint, point);
+
+						Point point1 = Point.create(point.getX(), point.getY(), distance+m_previousPoint.getParameter());
+
+						m_points.add(point1);
 
 						// マウスドラッグが止まった場合の点を打つ処理.
-						double timeDelta = point.getTime() - m_previousPoint.getTime();
-						if (timeDelta > 0.1){
-							double time = 0.01;
-							for (double i=m_previousPoint.getTime(); i < point.getTime(); i+=time){
-								Point clone = Point.create(m_previousPoint.getX(), m_previousPoint.getY(), i);
-								m_points.add(clone);
-							}
-						}
+//						double timeDelta = point.getTime() - m_previousPoint.getTime();
+//						if (timeDelta > 0.1){
+//							double time = 0.01;
+//							for (double i=m_previousPoint.getTime(); i < point.getTime(); i+=time){
+//								Point clone = Point.create(m_previousPoint.getX(), m_previousPoint.getY(), i);
+//								m_points.add(clone);
+//							}
+//						}
 
-						m_points.add( point );
-						// test
-						if(m_points.size() > 2) {
-							double test = m_points.get(m_points.size() - 1).getDistance(m_points.get(m_points.size() - 2));
-							System.out.println("distance:      " + test);
-						}
+//						m_points.add( point );
+//						// test
+//						System.out.println("getDistance: "+getDistance(m_previousPoint, point));
 
-						drawLine(m_previousPoint, point, Color.BLACK);
-						m_previousPoint = point;
+						drawLine(m_previousPoint, point1, Color.BLACK);
+						m_previousPoint = point1;
 					}
 				}
 		);

@@ -50,7 +50,7 @@ public class BSplineApprox {
 	public List<Double> generateKnots(){
 		double timeFirst = m_normalizedTimes.get(0);
 		double timeLast = m_normalizedTimes.get(m_normalizedTimes.size() - 1);
-		int knotIntervalNum = (int)Math.ceil((timeLast-timeFirst)/TIME_INTERVAL); // 区間数の決め方.
+		int knotIntervalNum = (int)Math.ceil((timeLast-timeFirst)/PARAMETER_NUMBER); // 区間数の決め方.
 		// Math.ceil(); は引数として与えた数以上の最小の整数を返す.
 		int knotSize = knotIntervalNum + 2 * m_degree - 1; // 節点の数.
 
@@ -68,21 +68,35 @@ public class BSplineApprox {
 	}
 
 	public List<Double> normalizedTimes(){
-		double timeLast = m_points.get(m_points.size()-1).getTime();
-		// ex.) timeLast = 3.12
-		double lastFloored = (Math.floor(timeLast*10))/10;
-		// ex.) 3.12*10 = 31.2 floor→ 31.0 *10 = 3.1
-		double ratio = lastFloored / timeLast;
-		// ex.) 3.1/3.12 = 0.9935...
-		List<Double> result = new ArrayList<>();
+		double pn = m_points.get(m_points.size()-1).getParameter();
+		double p0 = m_points.get(0).getParameter();
 
-		for (Point p : m_points){
-			result.add(p.getTime()*ratio); // 節点区間の時間間隔を狭める.
+		List<Double> pointParameter = new ArrayList<>();
 
-			System.out.println("second: "+p.getTime()*ratio);
+		for (Point m_point : m_points) {
+			double denominator = pn - p0;
+			double numerator = m_point.getParameter() - p0;
+			double result = numerator/denominator;
+			pointParameter.add(result);
 		}
 
-		return result;
+		return pointParameter;
+
+//		double timeLast = m_points.get(m_points.size()-1).getParameter();
+//		// ex.) timeLast = 3.12
+//		double lastFloored = (Math.floor(timeLast*10))/10;
+//		// ex.) 3.12*10 = 31.2 floor→ 31.0 *10 = 3.1
+//		double ratio = lastFloored / timeLast;
+//		// ex.) 3.1/3.12 = 0.9935...
+//		List<Double> result = new ArrayList<>();
+//
+//		for (Point p : m_points){
+//			result.add(p.getParameter()*ratio); // 節点区間の時間間隔を狭める.
+//
+//			System.out.println("second: "+p.getParameter()*ratio);
+//		}
+//
+//		return result;
 	}
 
 	public List<Point> getControlPoints(){
@@ -171,6 +185,6 @@ public class BSplineApprox {
 	private final List<Point> m_points;
 	private final List<Double> m_normalizedTimes;
 	private final List<Double> m_knots;
-	private static final double TIME_INTERVAL = 0.05; // 最初は0.05. 間隔を広くすることで書き始めを区間内に入れる.
-
+	private static final double PARAMETER_NUMBER = 1.0/20; // 最初は0.05. 間隔を広くすることで書き始めを区間内に入れる.
+	// 20等分するため、1区間を1/20とする.
 }

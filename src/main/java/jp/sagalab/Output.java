@@ -35,7 +35,7 @@ public class Output extends JFrame {
 				pw.print(",");
 				pw.print(_points.get(i).getY());
 				pw.print(",");
-				pw.print(_points.get(i).getTime());
+				pw.print(_points.get(i).getParameter());
 				pw.println();
 			}
 
