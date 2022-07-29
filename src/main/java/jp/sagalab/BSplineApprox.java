@@ -6,12 +6,22 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.LUDecomposition;
 
+/**
+ * B-Spline近似を行うクラス.
+ */
 public class BSplineApprox {
 
 	public static BSplineApprox create(List<Point> _points, int _degree){
 		return new BSplineApprox(_points, _degree);
 	}
 
+	/**
+	 * B-Splineの基底関数を取得するメソッド.
+	 * @param _i 制御点列内の対象の制御点のインデックス
+	 * @param _k 次数
+	 * @param _t 定義域内のパラメータt
+	 * @return B-スプライン基底関数の値
+	 */
 	private Double basisFunction(Integer _i, Integer _k, Double _t){
 		{
 			int knotsSize = m_knots.size();
@@ -47,27 +57,41 @@ public class BSplineApprox {
 		return coeff1 * basisFunction(_i, _k - 1, _t) + coeff2 * basisFunction(_i + 1, _k - 1, _t);
 	}
 
+	/**
+	 * ノット列を作成するメソッド.
+	 * @return ノット列
+	 */
 	public List<Double> generateKnots(){
-		double timeFirst = m_normalizedTimes.get(0);
-		double timeLast = m_normalizedTimes.get(m_normalizedTimes.size() - 1);
-		int knotIntervalNum = (int)Math.ceil((timeLast-timeFirst)/PARAMETER_NUMBER); // 区間数の決め方.
+		double firstParameter = m_normalizedParameter.get(0);
+		double lastParameter = m_normalizedParameter.get(m_normalizedParameter.size() - 1);
+		int knotIntervalNum = (int)Math.ceil((lastParameter-firstParameter)/PARAMETER_NUMBER); // 区間数の決め方.
 		// Math.ceil(); は引数として与えた数以上の最小の整数を返す.
 		int knotSize = knotIntervalNum + 2 * m_degree - 1; // 節点の数.
 
-		System.out.println("区間数: "+ knotIntervalNum);
+		// System.out.println("区間数: "+ knotIntervalNum);
 
 		List<Double> result = new ArrayList<>();
 
 		for (int i = 0; i < knotSize; ++i){
 			double w = (i - m_degree + 1) / (double) knotIntervalNum;
-			result.add((1.0 - w) * timeFirst + w * timeLast);
+			result.add((1.0 - w) * firstParameter + w * lastParameter);
 		}
 
-		System.out.println("接点: "+result);
+		// System.out.println("接点: "+result);
 		return result;
 	}
 
-	public List<Double> normalizedTimes(){
+	/**
+	 * 正規化を行うメソッド.
+	 *
+	 * p0 = 点列の最初の点.
+	 * pn = 点列の最後の点.
+	 * kを 1 から m_points.size() までとすると、
+	 * (pn - pk)/(pn - p0)
+	 * という式で正規化できる.
+	 * @return 正規化したリスト.
+	 */
+	public List<Double> normalizedParameter(){
 		double pn = m_points.get(m_points.size()-1).getParameter();
 		double p0 = m_points.get(0).getParameter();
 
@@ -99,6 +123,11 @@ public class BSplineApprox {
 //		return result;
 	}
 
+	/**
+	 * 制御点を取得するメソッド.
+	 * LU分解を使用.
+	 * @return 制御点
+	 */
 	public List<Point> getControlPoints(){
 		int size = m_points.size();
 		int controlPointsSize = m_knots.size() - m_degree + 1;
@@ -120,7 +149,7 @@ public class BSplineApprox {
 
 		for(int i=0; i < size; ++i){
 			for(int j=0; j < controlPointsSize; ++j){
-				double basis = basisFunction(j,m_degree, m_normalizedTimes.get(i));
+				double basis = basisFunction(j,m_degree, m_normalizedParameter.get(i));
 				basisMatrixRaw[i][j] = basis;
 			}
 		}
@@ -155,6 +184,11 @@ public class BSplineApprox {
 		return result;
 	}
 
+	/**
+	 * 行列を表示するメソッド.
+	 * @param m 行列
+	 * @param name 行列の名前
+	 */
 	public void showMatrix(RealMatrix m, String name) {
 		System.out.println("------------------ " + name);
 		for (int i = 0; i < m.getRowDimension(); i++) {
@@ -170,6 +204,10 @@ public class BSplineApprox {
 		System.out.println();
 	}
 
+	/**
+	 * ノット列のコピーを取得する.
+	 * @return ノット列のコピー
+	 */
 	public List<Double> getKnots(){
 		return new ArrayList<>(m_knots);
 	}
@@ -177,14 +215,19 @@ public class BSplineApprox {
 	public BSplineApprox(List<Point> _points, int _degree){
 		m_degree = _degree;
 		m_points = new ArrayList<>(_points);
-		m_normalizedTimes = normalizedTimes();
+		m_normalizedParameter = normalizedParameter();
 		m_knots = generateKnots();
 	}
 
+	/** 次数 */
 	private final int m_degree;
+	/** 点列 */
 	private final List<Point> m_points;
-	private final List<Double> m_normalizedTimes;
+	/** パラメータの列 */
+	private final List<Double> m_normalizedParameter;
+	/** ノット列 */
 	private final List<Double> m_knots;
+	/** 1区間分のパラメータ */
 	private static final double PARAMETER_NUMBER = 1.0/20; // 最初は0.05. 間隔を広くすることで書き始めを区間内に入れる.
 	// 20等分するため、1区間を1/20とする.
 }

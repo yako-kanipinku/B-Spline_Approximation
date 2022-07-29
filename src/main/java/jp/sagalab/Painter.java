@@ -3,7 +3,6 @@ package jp.sagalab;
 import javax.swing.*;
 import javax.swing.JOptionPane;
 import javax.swing.JFrame;
-import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.Canvas;
@@ -13,13 +12,24 @@ import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 描画するためのクラス.
+ */
 public class Painter extends JFrame {
 
 	static void create(){
 		new Painter();
 	}
 
+	/**
+	 * ウィンドウ閉じる時に出るダイアログ.
+	 */
 	class WindowClosing extends WindowAdapter{
+
+		/**
+		 * 本当に閉じていいのか、確認するためのダイアログ.
+		 * @param e WindowEvent
+		 */
 		public void windowClosing(WindowEvent e){
 			int ans = JOptionPane.showConfirmDialog(Painter.this,  "本当に閉じますか ?");
 			if(ans == JOptionPane.YES_OPTION)
@@ -27,6 +37,11 @@ public class Painter extends JFrame {
 		}
 	}
 
+	/**
+	 * 点を表示するためのメソッド.
+	 * @param _p 点
+	 * @param _color 色
+	 */
 	public void drawPoint(Point _p, Color _color) {
 		Graphics g = canvas.getGraphics();
 		g.setColor(_color);
@@ -34,17 +49,30 @@ public class Painter extends JFrame {
 		g.drawOval((int)_p.getX()-diameter/2, (int)_p.getY()-diameter/2, diameter, diameter);
 	}
 
+	/**
+	 * 線を表示するためのメソッド.
+	 * @param _previousPoint 打った点の一つ前の点
+	 * @param _currentPoint 打った点
+	 * @param _color 色
+	 */
 	public void drawLine(Point _previousPoint, Point _currentPoint, Color _color) {
 		Graphics g = canvas.getGraphics();
 		g.setColor(_color);
 		g.drawLine((int) _previousPoint.getX(), (int) _previousPoint.getY(), (int) _currentPoint.getX(), (int) _currentPoint.getY());
 	}
 
+	/**
+	 * キャンバスをクリアにするメソッド.
+	 */
 	public void cleanCanvas(){
 		Graphics g = canvas.getGraphics();
-		g.clearRect(0, 0, 800, 600);
+		g.clearRect(0, 0, 1000, 800);
 	}
 
+	/**
+	 * 時間を取得するためのメソッド.
+	 * @return 時間
+	 */
 	public long getTime(){
 		long time = System.currentTimeMillis();
 		return time;
@@ -52,8 +80,8 @@ public class Painter extends JFrame {
 
 	/**
 	 * _previousPointと_currentPointの距離を求める関数.
-	 * @param _previousPoint 過去の点.
-	 * @param _currentPoint 現在の点.
+	 * @param _previousPoint 打った点の一つ前の点.
+	 * @param _currentPoint 打った点.
 	 * @return 距離.
 	 */
 	public static double getDistance(Point _previousPoint, Point _currentPoint){
@@ -63,11 +91,14 @@ public class Painter extends JFrame {
 
 		// 三平方の定理
 		double nowDistance = Math.sqrt(x*x + y*y);
-		System.out.println("nowDistance: "+nowDistance);
+		// System.out.println("  nowDistance: "+nowDistance);
 
 		return nowDistance;
 	}
 
+	/**
+	 * 描画の設定.
+	 */
 	private Painter(){
 		setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
@@ -107,9 +138,10 @@ public class Painter extends JFrame {
 						drawPoint(point, Color.BLACK);
 						drawLine(m_previousPoint, point, Color.BLACK);
 
-//						for (Point m_point : m_points) {
-//							System.out.println(m_point);
-//						}
+						// 全ての点のパラメータを表示.
+						for (Point m_point : m_points) {
+							System.out.println(m_point);
+						}
 
 						BSplineApprox sci = BSplineApprox.create(m_points, 3);
 						List<Point> controlPoints = new ArrayList<>(sci.getControlPoints());
@@ -152,7 +184,7 @@ public class Painter extends JFrame {
 
 						double distance = getDistance(m_previousPoint, point);
 
-						Point point1 = Point.create(point.getX(), point.getY(), distance+m_previousPoint.getParameter());
+						Point point1 = Point.create(point.getX(), point.getY(), distance + m_previousPoint.getParameter());
 
 						m_points.add(point1);
 
@@ -167,8 +199,6 @@ public class Painter extends JFrame {
 //						}
 
 //						m_points.add( point );
-//						// test
-//						System.out.println("getDistance: "+getDistance(m_previousPoint, point));
 
 						drawLine(m_previousPoint, point1, Color.BLACK);
 						m_previousPoint = point1;
@@ -178,10 +208,14 @@ public class Painter extends JFrame {
 
 	}
 
-
-	private final List<Double> m_distance = new ArrayList<>();
 	private long m_startTime = 0;
+
+	/** 打った点の一つ前の点 */
 	private Point m_previousPoint;
+
+	/** 点列 */
 	private List<Point> m_points = new ArrayList<>();
+
+	/** キャンバス */
 	private final Canvas canvas = new Canvas();
 }
