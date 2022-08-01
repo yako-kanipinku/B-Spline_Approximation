@@ -1,4 +1,7 @@
-.gradle
-.idea
+#.gradleファイルはいらない
+.gradle/
+#.ideaファイルはいらない
+.idea/
 .gitignore
-build
+#buildファイルはいらない
+build/
