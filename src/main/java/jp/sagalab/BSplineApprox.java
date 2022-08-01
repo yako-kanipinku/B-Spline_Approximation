@@ -131,26 +131,24 @@ public class BSplineApprox {
 	public List<Point> getControlPoints(){
 		int size = m_points.size();
 		int controlPointsSize = m_knots.size() - m_degree + 1;
-		double[][] passXMatrixRaw = new double[size][1];
-		double[][] passYMatrixRaw = new double[size][1];
+		double[][] passMatrixRaw = new double[size*2][1];
 
 		for (int i=0; i < size; ++i){
-			passXMatrixRaw[i][0] = m_points.get(i).getX();
-			passYMatrixRaw[i][0] = m_points.get(i).getY();
+			passMatrixRaw[i][0] = m_points.get(i).getX();
+			passMatrixRaw[i+size][0] = m_points.get(i).getY();
 		}
 
-		RealMatrix passXMatrix = MatrixUtils.createRealMatrix(passXMatrixRaw);
-		RealMatrix passYMatrix = MatrixUtils.createRealMatrix(passYMatrixRaw);
+		RealMatrix passMatrix = MatrixUtils.createRealMatrix(passMatrixRaw);
 
-		//showMatrix(passXMatrix, "passXMatrix");
-		//showMatrix(passYMatrix, "passYMatrix");
+		showMatrix(passMatrix, "passMatrix");
 
-		double[][] basisMatrixRaw = new double[size][controlPointsSize];
+		double[][] basisMatrixRaw = new double[size*2][controlPointsSize*2];
 
 		for(int i=0; i < size; ++i){
 			for(int j=0; j < controlPointsSize; ++j){
 				double basis = basisFunction(j,m_degree, m_normalizedParameter.get(i));
 				basisMatrixRaw[i][j] = basis;
+				basisMatrixRaw[i+size][j+controlPointsSize] = basis;
 			}
 		}
 
@@ -158,25 +156,22 @@ public class BSplineApprox {
 		RealMatrix N_T = N.copy().transpose();
 		RealMatrix N_TN = N_T.copy().multiply(N);
 
-		//showMatrix(N, "N");
-		//showMatrix(N_T, "N_T");
-		//showMatrix(N_TN, "N_TN");
+		showMatrix(N, "N");
+		showMatrix(N_T, "N_T");
+		showMatrix(N_TN, "N_TN");
 
-		RealMatrix N_Tp_x = N_T.copy().multiply(passXMatrix);
-		RealMatrix N_Tp_y = N_T.copy().multiply(passYMatrix);
+		RealMatrix N_Tp = N_T.copy().multiply(passMatrix);
 
-		//showMatrix(N_Tp_x, "N_Tp_x");
-		//showMatrix(N_Tp_y, "N_Tp_y");
+		showMatrix(N_Tp, "N_Tp");
 
 		LUDecomposition LU_Decomposition = new LUDecomposition(N_TN);
-		RealMatrix resultXMatrix = LU_Decomposition.getSolver().solve(N_Tp_x);
-		RealMatrix resultYMatrix = LU_Decomposition.getSolver().solve(N_Tp_y);
+		RealMatrix resultMatrix = LU_Decomposition.getSolver().solve(N_Tp);
 
 		List<Point> result = new ArrayList<>();
 
 		for(int i=0; i < controlPointsSize; ++i){
-			double x = resultXMatrix.getEntry(i, 0);
-			double y = resultYMatrix.getEntry(i, 0);
+			double x = resultMatrix.getEntry(i, 0);
+			double y = resultMatrix.getEntry(i+controlPointsSize, 0);
 
 			result.add(Point.create(x,y));
 		}
