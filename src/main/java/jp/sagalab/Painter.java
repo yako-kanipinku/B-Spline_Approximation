@@ -9,7 +9,12 @@ import java.awt.Canvas;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -70,15 +75,6 @@ public class Painter extends JFrame {
 	}
 
 	/**
-	 * 時間を取得するためのメソッド.
-	 * @return 時間
-	 */
-	public long getTime(){
-		long time = System.currentTimeMillis();
-		return time;
-	}
-
-	/**
 	 * _previousPointと_currentPointの距離を求める関数.
 	 * @param _previousPoint 打った点の一つ前の点.
 	 * @param _currentPoint 打った点.
@@ -94,6 +90,53 @@ public class Painter extends JFrame {
 		// System.out.println("  nowDistance: "+nowDistance);
 
 		return nowDistance;
+	}
+
+	/**
+	 * 点列の要素をcsvファイルへと出力
+	 * @param _points 点列
+	 */
+	public void writeToCSV(List<Point> _points) {
+
+		Calendar calendar = Calendar.getInstance();
+		int year = calendar.get(Calendar.YEAR);
+		int month = calendar.get(Calendar.MONTH) + 1;
+		int day = calendar.get(Calendar.DATE);
+		int hour = calendar.get(Calendar.HOUR_OF_DAY);
+		int minute = calendar.get(Calendar.MINUTE);
+		int second = calendar.get(Calendar.SECOND);
+		int milliSecond = calendar.get(Calendar.MILLISECOND);
+
+		String fileName = year + "_" + month + "_" + day + "_" + hour + "_" + minute + "_" + second + "_" + milliSecond + ".csv";
+
+		try {
+
+			FileWriter fw = new FileWriter("files/points/" + fileName, false);
+			PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
+
+			pw.print("x");
+			pw.print(",");
+			pw.print("y");
+			pw.print(",");
+			pw.println("parameter");
+
+			for (int i = 0; i < _points.size(); i++) {
+				pw.print(_points.get(i).getX());
+				pw.print(",");
+				pw.print(_points.get(i).getY());
+				pw.print(",");
+				pw.print(_points.get(i).getParameter());
+				pw.println();
+			}
+
+			pw.close();
+
+			System.out.println("点列の出力が正常に終わりました");
+			System.out.println("ファイル名:" + fileName);
+
+		} catch (IOException ex) {
+		}
+
 	}
 
 	/**
@@ -118,8 +161,6 @@ public class Painter extends JFrame {
 					@Override
 					public void mousePressed(MouseEvent e) {
 
-						m_startTime = getTime();
-
 						m_points.clear();
 						cleanCanvas();
 						Point point = Point.create((double) e.getX(), (double) e.getY(), 0.0);
@@ -132,7 +173,7 @@ public class Painter extends JFrame {
 					@Override
 					public void mouseReleased(MouseEvent e){
 
-						Point point = Point.create((double) e.getX(), (double) e.getY(),(double)(getTime()-m_startTime)/1000);
+						Point point = Point.create((double) e.getX(), (double) e.getY(),0.0);
 						// 最後の点も追加しない.
 						//m_points.add( point );
 						drawPoint(point, Color.BLACK);
@@ -168,9 +209,10 @@ public class Painter extends JFrame {
 							tmp = p;
 						}
 
+						writeToCSV(m_points);
+
 					}
 
-					// Output.writeToCSV(m_points);
 				}
 
 		);
@@ -207,8 +249,6 @@ public class Painter extends JFrame {
 		);
 
 	}
-
-	private long m_startTime = 0;
 
 	/** 打った点の一つ前の点 */
 	private Point m_previousPoint;

@@ -1,6 +1,11 @@
 package jp.sagalab;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -131,6 +136,7 @@ public class BSplineApprox {
 	public List<Point> getControlPoints(){
 		int size = m_points.size();
 		int controlPointsSize = m_knots.size() - m_degree + 1;
+
 		double[][] passMatrixRaw = new double[size*2][1];
 
 		for (int i=0; i < size; ++i){
@@ -156,6 +162,7 @@ public class BSplineApprox {
 		RealMatrix N_T = N.copy().transpose();
 		RealMatrix N_TN = N_T.copy().multiply(N);
 
+		writeMatrixToCSV(N);
 		showMatrix(N, "N");
 		showMatrix(N_T, "N_T");
 		showMatrix(N_TN, "N_TN");
@@ -185,9 +192,9 @@ public class BSplineApprox {
 	 * @param name 行列の名前
 	 */
 	public void showMatrix(RealMatrix m, String name) {
-		System.out.println("------------------ " + name);
+		System.out.println("  ------------------ " + name);
 		for (int i = 0; i < m.getRowDimension(); i++) {
-			System.out.print("{");
+			System.out.print("  {");
 			for (int j = 0; j < m.getColumnDimension(); j++) {
 				System.out.printf("%.2f",m.getEntry(i, j));
 				if (j < m.getColumnDimension()-1) {
@@ -197,6 +204,48 @@ public class BSplineApprox {
 			System.out.println("}");
 		}
 		System.out.println();
+	}
+
+	/**
+	 * 行列をcsvファイルに出力.
+	 * @param m 行列
+	 */
+	public void writeMatrixToCSV(RealMatrix m) {
+
+		Calendar calendar = Calendar.getInstance();
+		int year = calendar.get(Calendar.YEAR);
+		int month = calendar.get(Calendar.MONTH) + 1;
+		int day = calendar.get(Calendar.DATE);
+		int hour = calendar.get(Calendar.HOUR_OF_DAY);
+		int minute = calendar.get(Calendar.MINUTE);
+		int second = calendar.get(Calendar.SECOND);
+		int milliSecond = calendar.get(Calendar.MILLISECOND);
+
+		String fileName = year + "_" + month + "_" + day + "_" + hour + "_" + minute + "_" + second + "_" + milliSecond + ".csv";
+
+		try {
+
+			FileWriter fw = new FileWriter("files/matrix/" + fileName, false);
+			PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
+
+			for (int i = 0; i < m.getRowDimension(); i++) {
+				for (int j = 0; j < m.getColumnDimension(); j++) {
+					pw.printf("%.2f",m.getEntry(i, j));
+					if (j < m.getColumnDimension()-1) {
+						pw.print(",");
+					}
+				}
+				pw.println();
+			}
+
+			pw.close();
+
+			System.out.println("行列の出力が正常に終わりました");
+			System.out.println("ファイル名:" + fileName);
+
+		} catch (IOException ex) {
+		}
+
 	}
 
 	/**
