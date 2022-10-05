@@ -144,9 +144,9 @@ public class BSplineApprox {
 			passMatrixRaw[i+size][0] = m_points.get(i).getY();
 		}
 
-		RealMatrix passMatrix = MatrixUtils.createRealMatrix(passMatrixRaw);
+		Matrix passMatrix = Matrix.create(passMatrixRaw);
 
-		showMatrix(passMatrix, "passMatrix");
+//		showMatrix(passMatrix, "passMatrix");
 
 		double[][] basisMatrixRaw = new double[size*2][controlPointsSize*2];
 
@@ -158,27 +158,53 @@ public class BSplineApprox {
 			}
 		}
 
-		RealMatrix N = MatrixUtils.createRealMatrix(basisMatrixRaw);
-		RealMatrix N_T = N.copy().transpose();
-		RealMatrix N_TN = N_T.copy().multiply(N);
+		/** 二行のC,dをとりあえず作成 */
+		double[][] c = new double[2][controlPointsSize*2];
 
-		writeMatrixToCSV(N);
+		for(int i=0; i<2; ++i){
+			for(int j=0; j<controlPointsSize*2; j++){
+				c[i][j] = 0;
+			}
+		}
+
+		/** 最初の制御点と最後の制御点だけをあるxで対称化 */
+		c[0][0] = 1;
+		c[0][controlPointsSize-1] = 1;
+		c[1][controlPointsSize] = 1;
+		c[1][controlPointsSize*2-1] = -1;
+
+		double[][] d = new double[2][1];
+		d[0][0] = 2*500; // 2*x_c
+		d[1][0] = 0;
+
+		Matrix D = Matrix.create(d);
+		showMatrix(D,"D");
+
+		Matrix C = Matrix.create(c);
+		showMatrix(C,"C");
+
+		Matrix N = Matrix.create(basisMatrixRaw);
+		Matrix N_T = N.transpose();
+		Matrix N_TN = N_T.product(N);
+
+//		writeMatrixToCSV(N);
+
 		showMatrix(N, "N");
-		showMatrix(N_T, "N_T");
-		showMatrix(N_TN, "N_TN");
+//		showMatrix(N_T, "N_T");
+//		showMatrix(N_TN, "N_TN");
 
-		RealMatrix N_Tp = N_T.copy().multiply(passMatrix);
+		Matrix N_Tp = N_T.product(passMatrix);
 
-		showMatrix(N_Tp, "N_Tp");
+//		showMatrix(N_Tp, "N_Tp");
 
-		LUDecomposition LU_Decomposition = new LUDecomposition(N_TN);
-		RealMatrix resultMatrix = LU_Decomposition.getSolver().solve(N_Tp);
+//		Matrix resultMatrix = N_TN.solve(N_Tp);
+		Matrix resultMatrix = LeastSquares.solveConstrained(N, passMatrix, C, D);
 
 		List<Point> result = new ArrayList<>();
 
 		for(int i=0; i < controlPointsSize; ++i){
-			double x = resultMatrix.getEntry(i, 0);
-			double y = resultMatrix.getEntry(i+controlPointsSize, 0);
+			double x = resultMatrix.get(i, 0);
+			double y = resultMatrix.get(i+controlPointsSize, 0);
 
 			result.add(Point.create(x,y));
 		}
@@ -191,13 +217,13 @@ public class BSplineApprox {
 	 * @param m 行列
 	 * @param name 行列の名前
 	 */
-	public void showMatrix(RealMatrix m, String name) {
+	public void showMatrix(Matrix m, String name) {
 		System.out.println("  ------------------ " + name);
-		for (int i = 0; i < m.getRowDimension(); i++) {
+		for (int i = 0; i < m.rowSize(); i++) {
 			System.out.print("  {");
-			for (int j = 0; j < m.getColumnDimension(); j++) {
-				System.out.printf("%.2f",m.getEntry(i, j));
-				if (j < m.getColumnDimension()-1) {
+			for (int j = 0; j < m.columnSize(); j++) {
+				System.out.printf("%.2f",m.get(i, j));
+				if (j < m.columnSize()-1) {
 					System.out.print(", ");
 				}
 			}

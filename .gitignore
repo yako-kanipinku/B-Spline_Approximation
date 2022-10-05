@@ -2,6 +2,6 @@
 .gradle/
 #.ideaファイルはいらない
 .idea/
-.gitignore
 #buildファイルはいらない
 build/
+files/

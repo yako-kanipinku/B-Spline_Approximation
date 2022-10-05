@@ -165,18 +165,28 @@ public class Painter extends JFrame {
 						cleanCanvas();
 						Point point = Point.create((double) e.getX(), (double) e.getY(), 0.0);
 						// 最初の点は追加しない.
-						//m_points.add( point );
+						m_points.add( point );
 						drawPoint(point, Color.BLACK);
 						m_previousPoint = point;
 					}
 
 					@Override
 					public void mouseReleased(MouseEvent e){
+						/** 軸となるxcを表す. */
+						Point u = Point.create(500.0, 0.0);
+						Point d = Point.create(500.0, 800.0);
+						drawLine(u,d,Color.RED);
 
-						Point point = Point.create((double) e.getX(), (double) e.getY(),0.0);
+						Point point = Point.create((double)e.getX(), (double)e.getY(), 0.0);
+
+						double distance = getDistance(m_previousPoint, point);
+
+						Point point1 = Point.create(point.getX(), point.getY(), distance + m_previousPoint.getParameter());
+
+						m_points.add(point1);
 						// 最後の点も追加しない.
-						//m_points.add( point );
-						drawPoint(point, Color.BLACK);
+
+						drawPoint(point1, Color.BLACK);
 						drawLine(m_previousPoint, point, Color.BLACK);
 
 						// 全ての点のパラメータを表示.
@@ -189,7 +199,14 @@ public class Painter extends JFrame {
 
 						for(int i=0; i < controlPoints.size(); i++){
 							Point y = Point.create(controlPoints.get(i).getX(), controlPoints.get(i).getY());
-							drawPoint(y, Color.BLUE);
+							if(i==0 || i==controlPoints.size()-1){
+								drawPoint(y, Color.GREEN);
+								System.out.print(y.getX()+",");
+								System.out.println(y.getY());
+							}
+							else {
+								drawPoint(y, Color.BLUE);
+							}
 						}
 
 						SplineCurve sc = SplineCurve.create(controlPoints, sci.getKnots());
