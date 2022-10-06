@@ -161,12 +161,6 @@ public class BSplineApprox {
 		/** 二行のC,dをとりあえず作成 */
 		double[][] c = new double[2][controlPointsSize*2];
 
-		for(int i=0; i<2; ++i){
-			for(int j=0; j<controlPointsSize*2; j++){
-				c[i][j] = 0;
-			}
-		}
-
 		/** 最初の制御点と最後の制御点だけをあるxで対称化 */
 		c[0][0] = 1;
 		c[0][controlPointsSize-1] = 1;
