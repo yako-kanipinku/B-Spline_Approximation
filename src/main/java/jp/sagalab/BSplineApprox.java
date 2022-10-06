@@ -159,23 +159,46 @@ public class BSplineApprox {
 		}
 
 		/** 二行のC,dをとりあえず作成 */
-		double[][] c = new double[2][controlPointsSize*2];
+		int row = (int) Math.round(controlPointsSize/2.0);
+		double[][] c = new double[row*2][controlPointsSize*2];
 
-		for(int i=0; i<2; ++i){
-			for(int j=0; j<controlPointsSize*2; j++){
-				c[i][j] = 0;
-			}
+		for(int i=0; i<row; ++i) {
+			// x
+			c[i][i] += 1;
+			c[i][controlPointsSize - 1 - i] += 1;
+			// y
+			c[i + row][i + controlPointsSize] += 1;
+			c[i + row][controlPointsSize - 1 - i + controlPointsSize] += -1;
+
+//				if(i<controlPointsSize/2){
+//					if(j == i || j == controlPointsSize-1-i){
+//						c[i][j] = 1;
+//					}else {
+//						c[i][j] = 0;
+//					}
+//				}else {
+//					if(j == i + controlPointsSize/2){
+//						c[i][j] = 1;
+//					}
+//					else if(j == controlPointsSize*2-1-(i-controlPointsSize/2)){
+//						c[i][j] = -1;
+//					}else {
+//						c[i][j] = 0;
+//					}
+//				}
 		}
 
 		/** 最初の制御点と最後の制御点だけをあるxで対称化 */
-		c[0][0] = 1;
-		c[0][controlPointsSize-1] = 1;
-		c[1][controlPointsSize] = 1;
-		c[1][controlPointsSize*2-1] = -1;
+//		c[0][0] = 1;
+//		c[0][controlPointsSize-1] = 1;
+//		c[1][controlPointsSize] = 1;
+//		c[1][controlPointsSize*2-1] = -1;
 
-		double[][] d = new double[2][1];
-		d[0][0] = 2*500; // 2*x_c
-		d[1][0] = 0;
+		double[][] d = new double[row*2][1];
+
+		for(int i=0; i<row; i++){
+				d[i][0] = 2*500;
+		}
 
 		Matrix D = Matrix.create(d);
 		showMatrix(D,"D");
