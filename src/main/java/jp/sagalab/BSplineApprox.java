@@ -158,7 +158,7 @@ public class BSplineApprox {
 			}
 		}
 
-		/** 二行のC,dをとりあえず作成 */
+		/** C,dを作成 */
 		int row = (int) Math.round(controlPointsSize/2.0);
 		double[][] c = new double[row*2][controlPointsSize*2];
 
@@ -169,30 +169,9 @@ public class BSplineApprox {
 			// y
 			c[i + row][i + controlPointsSize] += 1;
 			c[i + row][controlPointsSize - 1 - i + controlPointsSize] += -1;
-
-//				if(i<controlPointsSize/2){
-//					if(j == i || j == controlPointsSize-1-i){
-//						c[i][j] = 1;
-//					}else {
-//						c[i][j] = 0;
-//					}
-//				}else {
-//					if(j == i + controlPointsSize/2){
-//						c[i][j] = 1;
-//					}
-//					else if(j == controlPointsSize*2-1-(i-controlPointsSize/2)){
-//						c[i][j] = -1;
-//					}else {
-//						c[i][j] = 0;
-//					}
-//				}
 		}
 
-		/** 最初の制御点と最後の制御点だけをあるxで対称化 */
-//		c[0][0] = 1;
-//		c[0][controlPointsSize-1] = 1;
-//		c[1][controlPointsSize] = 1;
-//		c[1][controlPointsSize*2-1] = -1;
+		c[row*2-1][controlPointsSize -row + controlPointsSize] = 0.01;
 
 		double[][] d = new double[row*2][1];
 
