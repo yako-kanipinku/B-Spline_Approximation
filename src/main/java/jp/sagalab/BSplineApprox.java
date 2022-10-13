@@ -159,19 +159,22 @@ public class BSplineApprox {
 		}
 
 		/** C,dを作成 */
-		int row = (int) Math.floor(controlPointsSize/2.0);
-		double[][] c = new double[row*2][controlPointsSize*2];
+		int rowf = (int) Math.floor(controlPointsSize/2.0);
+		int row = (int) Math.round(controlPointsSize/2.0);
+		double[][] c = new double[row + rowf][controlPointsSize*2];
 
 		for(int i=0; i<row; ++i) {
 			// x
 			c[i][i] += 1;
 			c[i][controlPointsSize - 1 - i] += 1;
+		}
+		for(int i=0; i<rowf; ++i) {
 			// y
 			c[i + row][i + controlPointsSize] += 1;
 			c[i + row][controlPointsSize - 1 - i + controlPointsSize] += -1;
 		}
 
-		double[][] d = new double[row*2][1];
+		double[][] d = new double[row + rowf][1];
 
 		for(int i=0; i<row; i++){
 				d[i][0] = 2*500;
