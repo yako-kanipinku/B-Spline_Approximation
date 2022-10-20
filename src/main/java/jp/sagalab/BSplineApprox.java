@@ -192,7 +192,7 @@ public class BSplineApprox {
 
 //		writeMatrixToCSV(N);
 
-		showMatrix(N, "N");
+//		showMatrix(N, "N");
 //		showMatrix(N_T, "N_T");
 //		showMatrix(N_TN, "N_TN");
 
@@ -200,7 +200,6 @@ public class BSplineApprox {
 
 //		showMatrix(N_Tp, "N_Tp");
 
-//		Matrix resultMatrix = N_TN.solve(N_Tp);
 		Matrix resultMatrix = LeastSquares.solveConstrained(N, passMatrix, C, D);
 
 		List<Point> result = new ArrayList<>();
@@ -239,7 +238,7 @@ public class BSplineApprox {
 	 * 行列をcsvファイルに出力.
 	 * @param m 行列
 	 */
-	public void writeMatrixToCSV(RealMatrix m) {
+	public void writeMatrixToCSV(Matrix m) {
 
 		Calendar calendar = Calendar.getInstance();
 		int year = calendar.get(Calendar.YEAR);
@@ -257,10 +256,10 @@ public class BSplineApprox {
 			FileWriter fw = new FileWriter("files/matrix/" + fileName, false);
 			PrintWriter pw = new PrintWriter(new BufferedWriter(fw));
 
-			for (int i = 0; i < m.getRowDimension(); i++) {
-				for (int j = 0; j < m.getColumnDimension(); j++) {
-					pw.printf("%.2f",m.getEntry(i, j));
-					if (j < m.getColumnDimension()-1) {
+			for (int i = 0; i < m.rowSize(); i++) {
+				for (int j = 0; j < m.columnSize(); j++) {
+					pw.printf("%.2f",m.get(i, j));
+					if (j < m.columnSize()-1) {
 						pw.print(",");
 					}
 				}

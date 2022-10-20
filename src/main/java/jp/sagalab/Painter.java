@@ -197,16 +197,19 @@ public class Painter extends JFrame {
 						BSplineApprox sci = BSplineApprox.create(m_points, 3);
 						List<Point> controlPoints = new ArrayList<>(sci.getControlPoints());
 
+						writeToCSV(controlPoints);
+
 						for(int i=0; i < controlPoints.size(); i++){
 							Point y = Point.create(controlPoints.get(i).getX(), controlPoints.get(i).getY());
+
+							// 最初と最後の制御点は緑色、他は青.
 							if(i==0 || i==controlPoints.size()-1){
 								drawPoint(y, Color.GREEN);
-								System.out.print(y.getX()+",");
-								System.out.println(y.getY());
 							}
 							else {
 								drawPoint(y, Color.BLUE);
 							}
+
 						}
 
 						SplineCurve sc = SplineCurve.create(controlPoints, sci.getKnots());
@@ -226,7 +229,7 @@ public class Painter extends JFrame {
 							tmp = p;
 						}
 
-						writeToCSV(m_points);
+//						writeToCSV(m_points);
 
 					}
 
