@@ -173,9 +173,7 @@ public class Painter extends JFrame {
 					@Override
 					public void mouseReleased(MouseEvent e){
 						/** 軸となるxcを表す. */
-						Point u = Point.create(500.0, 0.0);
-						Point d = Point.create(500.0, 800.0);
-						drawLine(u,d,Color.RED);
+
 
 						Point point = Point.create((double)e.getX(), (double)e.getY(), 0.0);
 

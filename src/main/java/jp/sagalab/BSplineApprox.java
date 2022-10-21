@@ -165,19 +165,24 @@ public class BSplineApprox {
 
 		for(int i=0; i<row; ++i) {
 			// x
-			c[i][i] += 1;
-			c[i][controlPointsSize - 1 - i] += 1;
+			c[i][i] += Math.cos(theta);
+			c[i][controlPointsSize - 1 - i] += Math.cos(theta);
+			c[i][controlPointsSize + i] += Math.sin(theta);
+			c[i][controlPointsSize - 1 - i + controlPointsSize] += Math.sin(theta);
+
 		}
 		for(int i=0; i<rowf; ++i) {
 			// y
-			c[i + row][i + controlPointsSize] += 1;
-			c[i + row][controlPointsSize - 1 - i + controlPointsSize] += -1;
+			c[i + row][i] += -Math.sin(theta);
+			c[i + row][controlPointsSize - 1 - i] += Math.sin(theta);
+			c[i + row][controlPointsSize + i] += Math.cos(theta);
+			c[i + row][controlPointsSize - 1 - i + controlPointsSize] += -Math.cos(theta);
 		}
 
 		double[][] d = new double[row + rowf][1];
 
 		for(int i=0; i<row; i++){
-				d[i][0] = 2*500;
+				d[i][0] = 2*rho;
 		}
 
 		Matrix D = Matrix.create(d);
@@ -302,4 +307,8 @@ public class BSplineApprox {
 	/** 1区間分のパラメータ */
 	private static final double PARAMETER_NUMBER = 1.0/20; // 最初は0.05. 間隔を広くすることで書き始めを区間内に入れる.
 	// 20等分するため、1区間を1/20とする.
+	/** ρの値 */
+	private static final double rho = 500;
+	/** θの値 */
+	private static final double theta = 45;
 }
