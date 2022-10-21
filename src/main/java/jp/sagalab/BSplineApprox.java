@@ -310,5 +310,5 @@ public class BSplineApprox {
 	/** ρの値 */
 	private static final double rho = 500;
 	/** θの値 */
-	private static final double theta = 45;
+	private static final double theta = Math.toRadians(30);
 }
