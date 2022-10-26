@@ -136,6 +136,7 @@ public class BSplineApprox {
 	public List<Point> getControlPoints(){
 		int size = m_points.size();
 		int controlPointsSize = m_knots.size() - m_degree + 1;
+		Axis axis = Axis.create(theta, rho, 0);
 
 		double[][] passMatrixRaw = new double[size*2][1];
 
@@ -165,24 +166,24 @@ public class BSplineApprox {
 
 		for(int i=0; i<row; ++i) {
 			// x
-			c[i][i] += Math.cos(theta);
-			c[i][controlPointsSize - 1 - i] += Math.cos(theta);
-			c[i][controlPointsSize + i] += Math.sin(theta);
-			c[i][controlPointsSize - 1 - i + controlPointsSize] += Math.sin(theta);
+			c[i][i] += Math.cos(axis.getAngle());
+			c[i][controlPointsSize - 1 - i] += Math.cos(axis.getAngle());
+			c[i][controlPointsSize + i] += Math.sin(axis.getAngle());
+			c[i][controlPointsSize - 1 - i + controlPointsSize] += Math.sin(axis.getAngle());
 
 		}
 		for(int i=0; i<rowf; ++i) {
 			// y
-			c[i + row][i] += -Math.sin(theta);
-			c[i + row][controlPointsSize - 1 - i] += Math.sin(theta);
-			c[i + row][controlPointsSize + i] += Math.cos(theta);
-			c[i + row][controlPointsSize - 1 - i + controlPointsSize] += -Math.cos(theta);
+			c[i + row][i] += -Math.sin(axis.getAngle());
+			c[i + row][controlPointsSize - 1 - i] += Math.sin(axis.getAngle());
+			c[i + row][controlPointsSize + i] += Math.cos(axis.getAngle());
+			c[i + row][controlPointsSize - 1 - i + controlPointsSize] += -Math.cos(axis.getAngle());
 		}
 
 		double[][] d = new double[row + rowf][1];
 
 		for(int i=0; i<row; i++){
-				d[i][0] = 2*rho;
+				d[i][0] = 2*axis.getDistance();
 		}
 
 		Matrix D = Matrix.create(d);
@@ -308,7 +309,7 @@ public class BSplineApprox {
 	private static final double PARAMETER_NUMBER = 1.0/20; // 最初は0.05. 間隔を広くすることで書き始めを区間内に入れる.
 	// 20等分するため、1区間を1/20とする.
 	/** ρの値 */
-	private static final double rho = 500;
+	public static final double rho = 400;
 	/** θの値 */
-	private static final double theta = Math.toRadians(30);
+	public static final double theta = Math.toRadians(90);
 }

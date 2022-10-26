@@ -66,6 +66,17 @@ public class Painter extends JFrame {
 		g.drawLine((int) _previousPoint.getX(), (int) _previousPoint.getY(), (int) _currentPoint.getX(), (int) _currentPoint.getY());
 	}
 
+	public void drawAxis(Axis _axis, Color _color){
+		double x1,x2;
+		x1 = _axis.getDistance()/Math.cos(_axis.getAngle());
+		x2 = _axis.getDistance()/Math.cos(_axis.getAngle()) - Math.tan(_axis.getAngle())*CANVAS_SIZE_Y;
+
+		Graphics g = canvas.getGraphics();
+		g.setColor(_color);
+
+		g.drawLine((int)x1,0,(int)x2,CANVAS_SIZE_Y);
+	}
+
 	/**
 	 * キャンバスをクリアにするメソッド.
 	 */
@@ -173,7 +184,8 @@ public class Painter extends JFrame {
 					@Override
 					public void mouseReleased(MouseEvent e){
 						/** 軸となるxcを表す. */
-
+						Axis axis = Axis.create(BSplineApprox.theta, BSplineApprox.rho, 0);
+						drawAxis(axis, Color.BLUE);
 
 						Point point = Point.create((double)e.getX(), (double)e.getY(), 0.0);
 
@@ -276,4 +288,6 @@ public class Painter extends JFrame {
 
 	/** キャンバス */
 	private final Canvas canvas = new Canvas();
+
+	private final int CANVAS_SIZE_Y = 800;
 }
