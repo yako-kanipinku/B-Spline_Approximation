@@ -183,7 +183,7 @@ public class Painter extends JFrame {
 
 					@Override
 					public void mouseReleased(MouseEvent e){
-						/** 軸となるxcを表す. */
+						/** 軸となるx_cを表す. */
 						Axis axis = Axis.create(BSplineApprox.theta, BSplineApprox.rho, 0);
 						drawAxis(axis, Color.BLUE);
 

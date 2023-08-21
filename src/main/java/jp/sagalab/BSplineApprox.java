@@ -7,9 +7,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.LUDecomposition;
 
 /**
  * B-Spline近似を行うクラス.
@@ -188,9 +185,11 @@ public class BSplineApprox {
 
 		Matrix D = Matrix.create(d);
 		showMatrix(D,"D");
+		writeMatrixToCSV(D);
 
 		Matrix C = Matrix.create(c);
 		showMatrix(C,"C");
+		writeMatrixToCSV(C);
 
 		Matrix N = Matrix.create(basisMatrixRaw);
 		Matrix N_T = N.transpose();
@@ -309,7 +308,7 @@ public class BSplineApprox {
 	private static final double PARAMETER_NUMBER = 1.0/20; // 最初は0.05. 間隔を広くすることで書き始めを区間内に入れる.
 	// 20等分するため、1区間を1/20とする.
 	/** ρの値 */
-	public static final double rho = 400;
+	public static final double rho = 600;
 	/** θの値 */
-	public static final double theta = Math.toRadians(90);
+	public static final double theta = Math.toRadians(60);
 }
